@@ -5,12 +5,13 @@
 <table>
   <tr>
     <td>
-      <img src="/assets/Photo.jpg" alt="Profile Picture" width="100px" />
+      <img src="/assets/Photo.jpg" alt="Profile Picture" width="120px" />
     </td>
     <td style="text-align: left;">
       <p><strong>Name:</strong> Fábio Magalhães</p>
       <p><strong>Number:</strong> A104365</p>
-      <p><strong>Course:</strong> Computer Engineering</p>
+      <p><strong>Course:</strong> Web Engineering</p>
+      <p><strong>Year:</strong> 2024/2025</p>
     </td>
   </tr>
 </table>
