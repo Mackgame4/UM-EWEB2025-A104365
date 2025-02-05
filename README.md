@@ -1,7 +1,7 @@
 # E.WEB2025-A104365
 🗂️ Course TPC repository for UM for E. WEB in 2024/25
 
-#### Author Card
+#### Author
 <table>
   <tr>
     <td>
@@ -10,6 +10,7 @@
     <td style="text-align: left;">
       <p><strong>Name:</strong> Fábio Magalhães</p>
       <p><strong>Number:</strong> A104365</p>
+      <p><strong>Course:</strong> Computer Engineering</p>
     </td>
   </tr>
 </table>
