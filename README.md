@@ -11,7 +11,7 @@
       <p><strong>Name:</strong> Fábio Magalhães</p>
       <p><strong>Number:</strong> A104365</p>
       <p><strong>Course:</strong> Web Engineering</p>
-      <p><strong>Year:</strong> 2024/2025</p>
+      <p><strong>Year:</strong> 2024/25</p>
     </td>
   </tr>
 </table>
