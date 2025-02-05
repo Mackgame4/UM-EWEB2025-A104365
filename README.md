@@ -5,7 +5,7 @@
 <table>
   <tr>
     <td>
-      <img src="/assets/image-placeholder.svg" alt="Profile Picture" width="100px" />
+      <img src="/assets/Photo.jpg" alt="Profile Picture" width="100px" />
     </td>
     <td style="text-align: left;">
       <p><strong>Name:</strong> Fábio Magalhães</p>
