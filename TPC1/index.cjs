@@ -1,12 +1,15 @@
 const http = require('http');
 const axios = require('axios');
-const color = require('./utils').TCOLORS;
+const color = require('./utils.cjs').TCOLORS;
 const fs = require('fs');
 const path = require('path');
 
-const pages = {};
+const pages = {
+    '/': 'Clientes',
+    '/viaturas': 'Viaturas'
+};
+
 function buildHTML(url, title, body) {
-    pages[url] = title;
     return `
         <!DOCTYPE html>
         <html lang="pt">
@@ -35,27 +38,70 @@ function buildHTML(url, title, body) {
 
 http.createServer((req, res) => {
     if (req.url === '/') {
-        axios.get('http://localhost:3000/reparacoes')
+        axios.get('http://localhost:3000/clientes')
             .then(apiRes => {
-                const reparacoes = apiRes.data;
-                const html = buildHTML('/', 'Reparações', `
-                    <table class="w3-table w3-striped w3-bordered w3-centered">
+                const clientes = apiRes.data;
+                const html = buildHTML(req.url, pages[req.url], `
+                    <table class="w3-table w3-striped w3-bordered w3-centered w3-hoverable">
                         <tr>
                             <th>Nome</th>
                             <th>NIF</th>
-                            <th>Data</th>
                         </tr>
-                        ${reparacoes.map(reparacao => `
+                        ${clientes.map(cliente => `
                             <tr>
-                                <td>${reparacao.nome}</td>
-                                <td>${reparacao.nif}</td>
-                                <td>${reparacao.data}</td>
+                                <td>${cliente.nome}</td>
+                                <td>${cliente.nif}</td>
                             </tr>
                         `).join('')}
                     </table>
                 `);
                 res.writeHead(200, { 'Content-Type': 'text/html' });
                 res.end(html);
+            })
+            .catch(err => {
+                console.error(color.RED, err);
+                res.writeHead(500, { 'Content-Type': 'text/plain' });
+                res.end('Failed to fetch data from API.');
+            });
+    }
+    else if (req.url === '/viaturas') {
+        axios.get('http://localhost:3000/viaturas')
+            .then(viaturasData => {
+                const viaturas = viaturasData.data;
+                axios.get('http://localhost:3000/clientes')
+                    .then(clientesData => {
+                        const clientes = clientesData.data;
+                        const html = buildHTML(req.url, pages[req.url], `
+                            <table class="w3-table w3-striped w3-bordered w3-centered w3-hoverable">
+                                <tr>
+                                    <th>Marca</th>
+                                    <th>Modelo</th>
+                                    <th>Matrícula</th>
+                                    <th>Cliente</th>
+                                    <th>NIF</th>
+                                </tr>
+                                ${viaturas.map(viatura => {
+                                    const cliente = clientes.find(c => c.nif === viatura.cliente);
+                                    return `
+                                        <tr>
+                                            <td>${viatura.marca}</td>
+                                            <td>${viatura.modelo}</td>
+                                            <td>${viatura.matricula}</td>
+                                            <td>${cliente ? cliente.nome : 'Unknown'}</td>
+                                            <td>${viatura.cliente}</td>
+                                        </tr>
+                                    `;
+                                }).join('')}
+                            </table>
+                        `);
+                        res.writeHead(200, { 'Content-Type': 'text/html' });
+                        res.end(html);
+                    })
+                    .catch(err => {
+                        console.error(color.RED, err);
+                        res.writeHead(500, { 'Content-Type': 'text/plain' });
+                        res.end('Failed to fetch data from API.');
+                    });
             })
             .catch(err => {
                 console.error(color.RED, err);
@@ -74,5 +120,5 @@ http.createServer((req, res) => {
         });
     }
 }).listen(8000, () => {
-    console.log(color.GREEN, 'Server running at http://localhost:8000');
+    console.log(color.BLUE, 'ℹ️ Server running at http://localhost:8000');
 });
