@@ -1,6 +1,8 @@
 # E.WEB2025-A104365
 🗂️ Course TPC repository for UM for E. WEB in 2024/25
 
+##### The tasks for the TPCs in this repository are on the [course page](https://epl.di.uminho.pt/~jcr/AULAS/EngWeb2025/).
+
 #### Author
 <table>
   <tr>

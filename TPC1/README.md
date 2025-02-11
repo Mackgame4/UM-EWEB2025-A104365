@@ -1,5 +1,4 @@
 # 📝 TPC1
-##### Results for the task assigned on *data here*.
 
 *Summary here*.
 
