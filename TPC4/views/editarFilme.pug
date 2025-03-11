@@ -1,0 +1,24 @@
+extends layout
+
+block content
+    .we-card-4
+        header.w3-container.w3-blue
+            h1= titulo
+        .w3-container
+            form.w3-container(method='post')
+                fieldset
+                    legend Editar Filme
+                    label Título
+                    input.w3-input(type='text' name='title' required='required' value=filme.title)
+                    
+                    label Ano
+                    input.w3-input(type='number' name='year' required='required' value=filme.year)
+                    
+                    label Géneros
+                    input.w3-input(type='text' name='genres' required='required' value=filme.genres.join(', '))
+
+                    label Atores
+                    input.w3-input(type='text' name='cast' required='required' value=filme.cast.join(', '))
+
+                    button.w3-button.w3-blue.w3-mb-2(type='submit') Confirmar
+                    a.w3-button.w3-red(href='/filmes') Cancelar

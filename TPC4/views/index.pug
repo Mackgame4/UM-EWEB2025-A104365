@@ -1,0 +1,21 @@
+extends layout
+
+block content
+    .we-card-4
+      header.w3-container.w3-blue
+        h1= title
+        p Welcome to #{title}
+      .w3-container
+        h2 Dados da UC
+        ul
+          li Docente: #{uc.docente}
+          li Instituição: #{uc.instituicao}
+        
+        h2 App Cinematográfica
+        ul.w3-ul
+          li
+            a(href="/filmes") Filmes
+          li
+            a(href="/atores") Atores
+      footer.w3-container.w3-blue
+        address Powered by #{title}

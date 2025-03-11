@@ -1,0 +1,13 @@
+extends layout
+
+block content
+    .we-card-4
+        header.w3-container.w3-blue
+            h1= titulo
+    .w3-container
+        h2= 'Filmes de ' + ator
+        ul.w3-ul
+        each filme in filmes
+            li= filme.title
+    footer.w3-container.w3-blue
+        address Powered by #{titulo}
