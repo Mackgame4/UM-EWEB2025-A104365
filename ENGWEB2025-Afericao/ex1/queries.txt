@@ -1,0 +1,33 @@
+### 1.2.1
+Quantos livros têm a palavra Love no título?
+```bash
+$ db.livros.find({title: /Love/}).count()
+```
+
+### 1.2.2
+Quais os títulos dos livros, em ordem alfabética, em que um dos autores tem apelido Austen?
+```bash
+$ db.livros.find({author: /Austen/}, {title: 1, author: 1}).sort({title: 1}).pretty()
+```
+
+### 1.2.3
+Qual a lista de autores (ordenada alfabeticamente e sem repetições)?
+```bash
+$ db.livros.distinct("author").sort()
+```
+
+### 1.2.4
+Qual a distribuição de livros por género (genre) (quantos livros tem cada género)?
+```bash
+$ db.livros.aggregate([
+    { $group: { _id: "$genre", count: { $sum: 1 } } },
+    { $sort: { count: -1 } }
+]).pretty()
+```
+
+### 1.2.5
+Quais os títulos dos livros e respetivos isbn, em ordem alfabética de título, em que um dos
+personagens (characters) é Sirius Black?
+```bash
+$ db.livros.find({characters: /Sirius Black/}, {title: 1, isbn: 1}).sort({title: 1}).pretty()
+```
