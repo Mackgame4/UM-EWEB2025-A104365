@@ -1,8 +1,3 @@
-um ficheiro, PR.md, contendo uma descrição de como fez a
-persistência de dados, do setup de bases de dados, respostas textuais pedidas, instruções de como
-executar as aplicações desenvolvidas, descreva as ações necessárias para quem estiver de fora
-poder arrancar as aplicações, etc...
-
 # Exercicio 1
 
 ## 1.1
@@ -32,7 +27,7 @@ $ db.livros.find().pretty()
 ## 1.2
 Estrutura de um "livro" no dataset:
 ```json
-bookId: '968.The_Da_Vinci_Code',
+_id: '968.The_Da_Vinci_Code',
 title: 'The Da Vinci Code',
 series: 'Robert Langdon #2',
 author: 'Dan Brown (Goodreads Author)',
@@ -58,6 +53,8 @@ bbeScore: '876633',
 bbeVotes: '9231',
 price: ''
 ```
+###### Attention: A row "bookId" foi utilizada na row "_id" em mongoDB no dataset de output.
+
 ### 1.2.1
 Quantos livros têm a palavra Love no título?
 ```bash
@@ -103,3 +100,4 @@ npm install mongoose
 ```
 
 # Exercicio 2
+###### Attention: Para este exercicio foi utilizado o json-server para um desenvolvimento mais rápido, mas o mesmo funcionará com a API desenvolvida no exercicio anterior.
