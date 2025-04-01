@@ -9,7 +9,6 @@ python3 ./prepare_dataset.py
 Comandos de importação:
 ```bash
 docker run -d --name mongoEx1 -p 27017:27017 mongo
-cd ./ex1
 docker cp ./output_dataset.json mongoEx1:/dataset.json
 docker exec -it mongoEx1 bash
 $ mongoimport -d livros -c livros --type json --file /dataset.json --jsonArray
@@ -92,12 +91,29 @@ $ db.livros.find({characters: /Sirius Black/}, {title: 1, isbn: 1}).sort({title:
 ## 1.3
 Podiamos criar uma API de dados utilizando `JSON-Server`, mas em vez disso vamos usar o `MongoDB` e o `Express` para criar uma API RESTful.
 ```bash
-npx express-generator --views=pug apiLivros
+cd ./ex1
+#npx express-generator --views=pug apiLivros
 cd apiLivros
 npm install
 # Install dependencies for mongoDB
 npm install mongoose
+# Run the project
+npm start
 ```
 
 # Exercicio 2
-###### Attention: Para este exercicio foi utilizado o json-server para um desenvolvimento mais rápido, mas o mesmo funcionará com a API desenvolvida no exercicio anterior.
+###### Attention: Para este exercicio foi utilizada a API desenvolvida anterior mente, logo, tenha a certeza que esta se encontra em execução. Para tal também pode utilizar o seguinte script:
+```bash
+cd ./ex2
+npm run api
+```
+
+Para iniciar o servidor com as páginas pretendidas pode executar:
+```bash
+cd ./ex2
+npm install
+# Install dependencies for remote API fetching
+npm install axios
+# Run the project
+npm start
+```

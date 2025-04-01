@@ -2,6 +2,8 @@ import json
 
 INPUT_FILE = 'dataset.json'
 OUTPUT_FILE = 'output_dataset.json'
+DB_COLL_NAME = 'livros'
+JSON_OUTPUT_FILE = 'output_dataset_json.json'
 
 def safe_json_loads(value):
     """Tenta carregar um JSON válido, corrigindo aspas se necessário."""
