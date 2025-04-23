@@ -1,0 +1,12 @@
+doctype html
+html
+  head
+    // This is a pug comment, it should be compiled to a html comment
+    // Title is a variable passed from the route (in this case, layout.pug is called on index.pug and index.pug gets rendered by the routes/index.js that passes the title variable)
+    title= title
+    link(rel='stylesheet', href='/stylesheets/style.css')
+    meta(charset='utf-8')
+    meta(name='viewport', content='width=device-width, initial-scale=1')
+    link(rel="stylesheet", href="https://www.w3schools.com/w3css/4/w3.css")
+  body
+    block content
