@@ -35,18 +35,19 @@ module.exports.getBookById = async (id) => {
 
 // GET /books?charater=EEEE devolve a lista dos livros em que EEEE faz parte do nome de um dos personagens
 module.exports.getBooksByCharacter = async (character) => {
-    return await Book.find({ characters: { $regex: character, $options: 'i' } }).limit(CAP).exec()
+    return await Book.find({ characters: { $regex: character, $options: 'i' } }).exec()
         .then((books) => {
-            if (!books) {
-                throw new Error('Books not found');
+            if (!books || books.length === 0) {
+                throw new Error(`No books found with character containing '${character}'`);
             }
+            console.log(`Found ${books.length} books with character containing '${character}'`);
             return books;
         })
         .catch((err) => {
-            console.error('Error finding books:', err);
+            console.error('Error finding books by character:', err);
             throw err;
         });
-}
+};
 
 // GET /books?genre=AAA devolve a lista dos livros associados ao género (genre) AAA
 module.exports.getBooksByGenre = async (genre) => {
