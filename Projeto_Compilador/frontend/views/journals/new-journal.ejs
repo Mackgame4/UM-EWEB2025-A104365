@@ -1,0 +1,143 @@
+<main class="d-flex flex-column align-items-center justify-content-center py-3 px-1 h-100">
+    <div class="container-fluid h-100">
+        <form method="POST" action="/journals/new-journal" enctype="multipart/form-data" class="h-100">
+            <div class="row h-100 g-3">
+                <div class="col-md-2 d-flex flex-column h-100">
+                    <!-- Management Panel -->
+                    <div class="flex-shrink-0">
+                        <h5 class="text-center">Journal</h5>
+                        <div class="border p-3 bg-light rounded-2 w-100">
+                            <input type="text" name="title" class="form-control mb-2" placeholder="Journal Title" required>
+                            <button class="btn btn-outline-primary w-100 mb-2" type="submit">
+                                <i class="bi bi-journal-plus"></i> Publish
+                            </button>
+                            <a class="btn btn-outline-danger w-100" href="/journals" onclick="return confirm('Are you sure you want to cancel? Any unsaved changes will be lost.');">
+                                <i class="bi bi-x-circle"></i> Cancel
+                            </a>
+                        </div>
+                    </div>
+                    <!-- File System -->
+                    <div class="flex-grow-1 d-flex flex-column mt-3" style="min-height: 0;">
+                        <h5 class="text-center">Files</h5>
+                        <div id="filesystem" class="border p-3 bg-light rounded-2 w-100 h-100 d-flex flex-column" style="overflow: auto;">
+                            <input class="form-control" type="file" id="formFile" name="files" multiple>
+                            <hr class="hr" />
+                            <ul class="list-unstyled mt-1flex-grow-1" style="overflow-y: auto;">
+                                <% journal.files.forEach(function(file) { %>
+                                    <li class="file" oncontextmenu="showContextMenu(event, '<%= file.name %>')">
+                                        <i class="bi bi-file-earmark-fill"></i> <%= file.name %>
+                                        <% if (file.isPublic) { %>
+                                            <i class="bi bi-eye"></i>
+                                        <% } %>
+                                    </li>
+                                <% }); %>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <!-- Editor -->
+                <div class="col-md-5 d-flex flex-column h-100">
+                    <h5 class="text-center">Editor</h5>
+                    <textarea id="editor" name="content" class="form-control flex-grow-1 w-100" style="overflow: auto; resize: none;" placeholder="Enter Markdown here..."><%= journal.content || '' %></textarea>
+                </div>
+                <!-- Preview -->
+                <div class="col-md-5 d-flex flex-column h-100">
+                    <h5 class="text-center">Preview</h5>
+                    <div id="preview" class="border p-3 bg-light rounded-2 flex-grow-1 w-100" style="overflow: auto;"></div>
+                </div>
+            </div>
+        </form>
+    </div>
+</main>
+
+<!-- Context Menu -->
+<div id="contextMenu" class="dropdown-menu" style="position: absolute; display: none; z-index: 1000;">
+    <a class="dropdown-item" href="#" id="copyName">Copy Name</a>
+    <a class="dropdown-item" href="#" id="copyPath">Copy Path</a>
+    <a class="dropdown-item text-primary" href="#" id="downloadFile">Download File</a>
+    <a class="dropdown-item text-danger" href="#" id="deleteFile">Delete File</a>
+    <a class="dropdown-item" href="#" id="makePublic">Make Public/Private</a>
+</div>
+
+<!-- Marked CDN -->
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script>
+const editor = document.getElementById('editor');
+const preview = document.getElementById('preview');
+
+editor.addEventListener('input', () => {
+    preview.innerHTML = marked.parse(editor.value);
+});
+
+// Render initial content
+preview.innerHTML = marked.parse(editor.value);
+
+// Handle file selection (put them in the filesystem)
+const fileInput = document.getElementById('formFiles');
+const fileList = document.querySelector('#filesystem ul');
+fileInput.addEventListener('change', (event) => {
+    const files = event.target.files;
+    if (files.length > 0) {
+        Array.from(files).forEach(file => {
+            addFileToFileSystem(file.name);
+        });
+    }
+});
+
+function addFileToFileSystem(fileName) {
+    const li = document.createElement('li');
+    li.className = 'file';
+    li.innerHTML = `
+        <i class="bi bi-file-earmark-fill"></i> ${fileName}
+    `;
+    li.oncontextmenu = (e) => showContextMenu(e, fileName);
+    fileList.appendChild(li);
+}
+
+// Delete file from UI
+function deleteFile(fileName, listItem) {
+    const confirmed = confirm(`Are you sure you want to delete "${fileName}"?`);
+    if (confirmed) {
+        listItem.remove();
+    }
+}
+
+// Right-click context menu logic
+function showContextMenu(event, fileName) {
+    event.preventDefault(); // Prevent default context menu
+    const contextMenu = document.getElementById('contextMenu');
+    // Set the file name context
+    document.getElementById('copyName').onclick = () => copyFileName(fileName);
+    document.getElementById('copyPath').onclick = () => copyFilePath(fileName);
+    document.getElementById('deleteFile').onclick = () => deleteFile(fileName, event.target);
+    // Position and show the context menu
+    contextMenu.style.left = `${event.pageX}px`;
+    contextMenu.style.top = `${event.pageY}px`;
+    contextMenu.style.display = 'block';
+}
+
+// Copy file name to clipboard
+function copyFileName(filePath) {
+    const fileName = filePath.split('/').pop(); // Extract file name from the path
+    navigator.clipboard.writeText(fileName).then(() => {
+        alert(`File name "${fileName}" copied to clipboard.`);
+    });
+}
+
+// Copy file path to clipboard
+function copyFilePath(filePath) {
+    filePath = filePath.replace(/\\/g, '/'); // Normalize path for Windows
+    // Add leading slash if not present
+    if (!filePath.startsWith('/')) {
+        filePath = '/' + filePath;
+    }
+    navigator.clipboard.writeText(filePath).then(() => {
+        alert(`File path "${filePath}" copied to clipboard.`);
+    });
+}
+
+// Hide context menu when clicking elsewhere
+window.addEventListener('click', () => {
+    document.getElementById('contextMenu').style.display = 'none';
+});
+</script>

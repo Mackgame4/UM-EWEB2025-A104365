@@ -1,0 +1,58 @@
+<main class="d-flex flex-column align-items-center justify-content-center flex-grow-1 p-3 text-center h-100">
+    <div class="card shadow rounded-4" style="max-width: 720px; width: 100%;">
+        <div class="row g-0">
+            <!-- Sidebar -->
+            <div class="col-md-4 border-end bg-body-tertiary rounded-start-4 p-3">
+                <h5 class="fw-semibold mb-3">Account</h5>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link <%= section === 'account' ? 'active' : '' %>" href="/account?section=account">My Account</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link <%= section === 'password' ? 'active' : '' %>" href="/account?section=password">Change Password</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link <%= section === 'username' ? 'active' : '' %>" href="/account?section=username">Change Username</a>
+                    </li>
+                    <li class="nav-item">
+                        <form method="POST" action="/users/delete" class="mt-2">
+                            <button class="btn btn-sm btn-outline-danger" type="submit">Delete Account</button>
+                        </form>
+                    </li>
+                </ul>
+            </div>
+            <!-- Content -->
+            <div class="col-md-8 p-4">
+                <% if (section === 'password') { %>
+                    <h5 class="mb-3">Change Password</h5>
+                    <form method="POST" action="/users/change-password">
+                        <div class="mb-3">
+                            <label for="currentPassword" class="form-label">Current Password</label>
+                            <input type="password" class="form-control" id="currentPassword" name="currentPassword" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="newPassword" class="form-label">New Password</label>
+                            <input type="password" class="form-control" id="newPassword" name="newPassword" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Update Password</button>
+                    </form>
+                <% } else if (section === 'username') { %>
+                    <h5 class="mb-3">Change Username</h5>
+                    <div class="alert alert-warning mt-4" role="alert">Customize your avatar by changing your username.</div>
+                    <form method="POST" action="/users/change-username">
+                        <div class="mb-3">
+                            <label for="username" class="form-label">Username</label>
+                            <input type="text" class="form-control" id="username" name="username" value="<%= user.username %>">
+                        </div>
+                        <button type="submit" class="btn btn-primary">Update Username</button>
+                    </form>
+                <% } else { %>
+                    <h5 class="mb-3">Welcome, <%= user.username %></h5>
+                    <p><strong>Email:</strong> <%= user.email %></p>
+                    <p><strong>User ID:</strong> <%= user._id %></p>
+                    <div class="alert alert-info mt-4" role="alert">Select an option from the menu to manage your account.</div>
+                <% } %>
+            </div>            
+        </div>
+    </div>
+</main>

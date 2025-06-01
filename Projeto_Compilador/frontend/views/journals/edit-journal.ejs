@@ -1,0 +1,151 @@
+<main class="d-flex flex-column align-items-center justify-content-center py-3 px-1 h-100">
+    <div class="container-fluid h-100">
+        <div class="row h-100 g-3">
+            <div class="col-md-2 d-flex flex-column h-100">
+                <!-- Management Panel -->
+                <div class="flex-shrink-0">
+                    <h5 class="text-center">Journal</h5>
+                    <div class="border p-3 bg-light rounded-2 w-100">
+                        <form method="POST" action="/journals/edit-journal/<%= journal._id %>" enctype="multipart/form-data" id="journalForm">
+                            <input type="text" name="title" class="form-control mb-2" placeholder="Journal Title" value="<%= journal.title %>">
+                            <input type="hidden" name="content" id="hiddenContent" value="<%= journal.content || '' %>">
+                            <input style="display: none;" type="file" name="files" id="hiddenFiles" multiple>
+                            <button class="btn btn-outline-primary w-100 mb-2" type="submit">
+                                <i class="bi bi-floppy"></i> Save
+                            </button>
+                        </form>
+                        <form method="POST" action="/journals/delete-journal/<%= journal._id %>" onsubmit="return confirm('Are you sure you want to delete this journal?');">
+                            <button class="btn btn-outline-danger w-100" type="submit">
+                                <i class="bi bi-trash"></i> Delete
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                <!-- File System -->
+                <div class="flex-grow-1 d-flex flex-column mt-3" style="min-height: 0;">
+                    <h5 class="text-center">Files</h5>
+                    <div id="filesystem" class="border p-3 bg-light rounded-2 w-100 h-100 d-flex flex-column" style="overflow: auto;">
+                        <input class="form-control" type="file" id="formFiles" name="files" multiple>
+                        <hr class="hr" />
+                        <ul class="list-unstyled mt-1 flex-grow-1" style="overflow-y: auto;">
+                            <% if (journal.files && journal.files.length > 0) { %>
+                                <% journal.files.forEach(function(file) { %>
+                                    <li class="file d-flex align-items-center justify-content-between mb-2">
+                                        <div class="d-flex align-items-center">
+                                            <div class="me-1">
+                                                <% if (file.mimetype.startsWith('image/')) { %>
+                                                    <i class="bi bi-card-image"></i>
+                                                <% } else if (file.mimetype.startsWith('video/')) { %>
+                                                    <i class="bi bi-camera-video-fill"></i>
+                                                <% } else if (file.mimetype.startsWith('audio/')) { %>
+                                                    <i class="bi bi-music-note-beamed"></i>
+                                                <% } else { %>
+                                                    <i class="bi bi-file-earmark-fill"></i>
+                                                <% } %>
+                                            </div>
+                                            <span class="text-truncate" style="max-width: 100px;" onclick="previewFile('<%= file.path %>')"><%= file.name %></span>
+                                        </div>
+                                        <div class="btn-group btn-group-sm">
+                                            <button class="btn btn-outline-secondary" onclick="copyFilePath('<%= file.path %>')">
+                                                <i class="bi bi-clipboard"></i>
+                                            </button>
+                                            <form class="btn-group btn-group-sm" method="POST" action="/journals/toggle-file-visibility/<%= file._id %>" onsubmit="toggleFileVisibility('<%= file.name %>', this)">
+                                                <button class="btn btn-outline-secondary" type="submit">
+                                                    <% if (file.isPublic) { %>
+                                                        <i class="bi bi-unlock"></i>
+                                                    <% } else { %>
+                                                        <i class="bi bi-lock-fill"></i>
+                                                    <% } %>
+                                                </button>
+                                            </form>
+                                            <button class="btn btn-outline-primary" onclick="downloadFile('<%= file.path %>')">
+                                                <i class="bi bi-download"></i>
+                                            </button>
+                                            <form class="btn-group btn-group-sm" method="POST" action="/journals/delete-file/<%= file._id %>">
+                                                <button class="btn btn-outline-danger" type="submit">
+                                                    <i class="bi bi-file-earmark-x"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </li>
+                                <% }); %>
+                            <% } %>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <!-- Editor -->
+            <div class="col-md-5 d-flex flex-column h-100">
+                <h5 class="text-center">Editor</h5>
+                <textarea id="editor" class="form-control flex-grow-1 w-100" style="overflow: auto; resize: none;" placeholder="Enter Markdown here..."><%= journal.content || '' %></textarea>
+            </div>
+            <!-- Preview -->
+            <div class="col-md-5 d-flex flex-column h-100">
+                <h5 class="text-center">Preview</h5>
+                <div id="preview" class="border p-3 bg-light rounded-2 flex-grow-1 w-100" style="overflow: auto;"></div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Marked CDN -->
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script>
+const editor = document.getElementById('editor');
+const preview = document.getElementById('preview');
+
+document.getElementById('journalForm').addEventListener('submit', (event) => {
+    // Update hidden content field with current editor value
+    document.getElementById('hiddenContent').value = editor.value;
+    // Add files
+    const fileInput = document.getElementById('formFiles');
+    const hiddenFiles = document.getElementById('hiddenFiles');
+    if (fileInput.files.length > 0) {
+        const dataTransfer = new DataTransfer();
+        for (let i = 0; i < fileInput.files.length; i++) {
+            dataTransfer.items.add(fileInput.files[i]);
+        }
+        hiddenFiles.files = dataTransfer.files;
+    }
+});
+
+editor.addEventListener('input', () => {
+    preview.innerHTML = marked.parse(editor.value);
+});
+
+// Render initial content
+preview.innerHTML = marked.parse(editor.value);
+
+// Toggle file visibility
+function toggleFileVisibility(fileName, form) {
+    const isPublic = form.querySelector('button i').classList.contains('bi-unlock');
+    const action = isPublic ? 'Make Private' : 'Make Public';
+    const confirmed = confirm(`Are you sure you want to ${action} "${fileName}"?`);
+    if (confirmed) {
+        return true; // Allow form submission
+    }
+    return false; // Prevent form submission
+}
+
+function downloadFile(filePath) {
+    const link = document.createElement('a');
+    link.href = filePath; // Assuming filePath is a valid URL or path
+    link.download = ''; // Use the default filename
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    return false; // Prevent default form submission
+}
+
+function previewFile(filePath) {
+    // Open the file in a new tab or window
+    window.open(filePath, '_blank');
+}
+
+// Copy file path to clipboard
+function copyFilePath(filePath) {
+    navigator.clipboard.writeText(filePath).then(() => {
+        alert(`File path "${filePath}" copied to clipboard.`);
+    });
+}
+</script>

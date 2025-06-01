@@ -1,0 +1,25 @@
+<main class="d-flex flex-column align-items-center justify-content-center vh-100 p-3 text-center bg-light">
+    <form class="m-auto" method="POST" action="/users/login" style="width: 360px;">
+        <div class="text-center mb-4">
+            <img class="mb-4" src="/images/tjlogo.png" alt="Logo" width="74" height="72"> 
+            <h1 class="h3 mb-3 fw-normal">Welcome back to Trivial Journal</h1>
+            <p class="lead">Your personal journal for all your trivial thoughts.</p>
+        </div>
+        <div class="form-floating">
+            <input type="email" name="email" autocomplete="email" class="form-control" id="emailInput" placeholder="name@example.com" required autofocus>
+            <label for="floatingInput">Email address</label>
+        </div>
+        <div class="form-floating mt-2">
+            <input type="password" name="password" autocomplete="current-password" class="form-control" id="passwordInput" placeholder="Password" required>
+            <label for="floatingPassword">Password</label>
+        </div>
+        <span class="d-flex align-items-center mt-2">
+            Don't have an account?
+            <a href="/signup" class="btn btn-link p-0 m-1">Sign Up</a>
+        </span>
+        <button class="btn btn-primary w-100 py-2" type="submit">
+            <i class="bi bi-person"></i> Login
+        </button> 
+        <p class="mt-4 mb-3 text-body-secondary">&copy; EWEB - 2025</p>
+    </form>
+</main>

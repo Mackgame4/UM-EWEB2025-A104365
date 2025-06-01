@@ -1,0 +1,87 @@
+<main class="d-flex flex-column align-items-center justify-content-center py-3 px-1 h-100">
+    <div class="container-fluid d-flex flex-column h-100">
+        <div class="border rounded-2 p-3 bg-light w-100">
+            <div class="row">
+                <!-- Author Info -->
+                <div class="col-md-4 d-flex flex-column align-items-start">
+                    <h3><%= journal.title %></h3>
+                    <span><strong>Author:</strong> <%= journal.authorName %></span>
+                    <span><strong>Last Updated:</strong> <%= new Date(journal.updatedAt).toLocaleString('pt-PT') %></span>
+                </div>
+                <!-- Journal Info -->
+                <div class="col-md-8 d-flex flex-column align-items-end text-end">
+                    <form method="GET" action="/journals/export/<%= journal._id %>" class="mb-2">
+                        <button class="btn btn-sm btn-dark d-flex align-items-center" type="submit">
+                            <i class="bi bi-file-earmark-arrow-up me-1"></i> Export
+                        </button>
+                    </form>
+                    <div clas="d-flex flex-row align-items-center gap-2 mb-2">
+                        <span class="badge bg-secondary"><i class="bi bi-eye"></i> <%= journal.views || 0 %></span>
+                        <span class="badge bg-secondary"><i class="bi bi-file-earmark-arrow-up"></i> <%= journal.downloads || 0 %></span>
+                    </div>
+                    <span class="mt-auto"><strong>Created At:</strong> <%= new Date(journal.createdAt).toLocaleString('pt-PT') %></span>
+                </div>
+            </div>
+        </div>
+        <div class="d-flex flex-grow-1 mt-3 overflow-hidden">
+            <!-- File System -->
+            <% if (typeof journal.files != 'undefined' && journal.files.filter(file => file.isPublic).length > 0) { %>
+            <div id="filesystem" class="d-flex flex-column p-3 border bg-light rounded-2 me-2" style="overflow: auto; max-height: 100%; min-width: 250px; width: max-content;">
+                <ul class="list-unstyled mt-1 flex-grow-1" style="overflow-y: auto;">
+                <% if (journal.files && journal.files.length > 0) { %>
+                    <% journal.files.forEach(function(file) { %>
+                        <%if (file.isPublic) { %>
+                            <li class="file d-flex align-items-center justify-content-between mb-2">
+                                <div class="d-flex align-items-center">
+                                    <div class="me-1">
+                                        <% if (file.mimetype.startsWith('image/')) { %>
+                                            <i class="bi bi-card-image"></i>
+                                        <% } else if (file.mimetype.startsWith('video/')) { %>
+                                            <i class="bi bi-camera-video-fill"></i>
+                                        <% } else if (file.mimetype.startsWith('audio/')) { %>
+                                            <i class="bi bi-music-note-beamed"></i>
+                                        <% } else { %>
+                                            <i class="bi bi-file-earmark-fill"></i>
+                                        <% } %>
+                                    </div>
+                                    <span class="text-truncate" style="max-width: 100px;" onclick="previewFile('<%= file.path %>')"><%= file.name %></span>
+                                </div>
+                                <div class="btn-group btn-group-sm">
+                                    <button class="btn btn-outline-primary" onclick="downloadFile('<%= file.path %>')">
+                                        <i class="bi bi-download"></i>
+                                    </button>
+                                </div>
+                            </li>
+                        <% } %>
+                    <% }); %>
+                <% } %>
+                </ul>
+            </div>
+            <% } %>
+            <!-- Preview -->
+            <div id="preview" class="p-3 bg-white flex-grow-1"style="overflow: auto; max-height: 100%;"><%= journal.content || '' %></div>
+        </div>
+    </div>
+</main>
+
+<!-- Marked CDN -->
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script>
+const preview = document.getElementById('preview');
+preview.innerHTML = marked.parse(preview.innerHTML);
+
+function previewFile(filePath) {
+    // Open the file in a new tab or window
+    window.open(filePath, '_blank');
+}
+
+function downloadFile(filePath) {
+    const link = document.createElement('a');
+    link.href = filePath; // Assuming filePath is a valid URL or path
+    link.download = ''; // Use the default filename
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    return false; // Prevent default form submission
+}
+</script>

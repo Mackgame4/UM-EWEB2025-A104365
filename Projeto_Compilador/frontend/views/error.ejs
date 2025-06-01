@@ -1,0 +1,8 @@
+<main class="d-flex flex-column align-items-center justify-content-center vh-100 p-3 bg-light">
+    <h1 class="mt-5">Error</h1>
+    <p class="lead">An error occurred while processing your request.</p>
+    <div class="alert alert-danger" role="alert">
+        <strong>Error <%= error.status %>:</strong> <%= message %>
+    </div>
+    <pre><%= error.stack %></pre>
+</main>

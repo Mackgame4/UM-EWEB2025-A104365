@@ -1,0 +1,87 @@
+<main class="d-flex flex-column align-items-center justify-content-start py-3 px-1">
+    <div class="container-fluid">
+        <!-- Search Bar -->
+        <div class="row mb-4">
+            <div class="col d-flex align-items-center justify-content-between gap-3">
+                <!--<form method="GET" action="/journals/new" class="flex-shrink-0">
+                    <button class="btn btn-dark d-flex align-items-center" type="submit">
+                        <i class="bi bi-file-earmark-arrow-up me-1"></i> Export All
+                    </button>
+                </form>-->
+                <form method="POST" action="/journals/new" class="flex-shrink-0">
+                    <button class="btn btn-dark d-flex align-items-center" type="submit">
+                        <i class="bi bi-file-earmark-zip me-1"></i> Import
+                    </button>
+                </form>
+                <form id="searchForm" class="d-flex w-100">
+                    <input type="text" id="searchInput" class="form-control me-2" placeholder="Search journals...">
+                    <button class="btn btn-outline-dark d-flex align-items-center" type="submit">
+                        <i class="bi bi-search me-1"></i> Search
+                    </button>
+                </form>
+            </div>
+        </div>
+        <!-- Journals Grid -->
+        <% if (journals && journals.length > 0) { %>
+        <div class="row row-cols-1 row-cols-md-3 g-4" id="journalsContainer">
+            <% journals.forEach(function(journal) { %>
+            <div class="col journal-card" data-title="<%= journal.title %>">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h5 class="card-title mb-0"><%= journal.title %></h5>
+                            <div class="btn-group">
+                                <a class="btn btn-sm btn-outline-secondary" href="/journals/view/<%= journal._id %>">View</a>
+                                <a class="btn btn-sm btn-outline-secondary" href="/journals/edit/<%= journal._id %>">Edit</a>
+                            </div>
+                        </div>
+                        <div class="card-text d-flex flex-row align-items-center gap-2 mb-2">
+                            <span class="badge bg-secondary"><i class="bi bi-eye"></i> <%= journal.views || 0 %></span>
+                            <span class="badge bg-secondary"><i class="bi bi-file-earmark-arrow-up"></i> <%= journal.downloads || 0 %></span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <p class="text-body-secondary mb-0 small">Created at: <%= new Date(journal.createdAt).toLocaleString('pt-PT') %></p>
+                            <p class="text-body-secondary mb-0 small">Last updated: <%= new Date(journal.updatedAt).toLocaleString('pt-PT') %></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <% }); %>
+        </div>
+        <% } else { %>
+        <div class="alert alert-info" role="alert">
+            No journals found. <a href="/journals/new" class="alert-link">Create a new journal</a>.
+        </div>
+        <% } %>
+    </div>
+</main>
+
+<script>
+// Client-side search (so we dont need to use expressjs)
+document.addEventListener('DOMContentLoaded', function() {
+    const searchForm = document.getElementById('searchForm');
+    const searchInput = document.getElementById('searchInput');
+    const journalsContainer = document.getElementById('journalsContainer');
+    const journalCards = document.querySelectorAll('.journal-card');
+    searchForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const searchTerm = searchInput.value.trim();
+        journalCards.forEach(card => {
+            const title = card.dataset.title;
+            if (title.includes(searchTerm)) {
+                card.style.display = 'block';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    });
+    // Clear search when input is empty
+    searchInput.addEventListener('input', function() {
+        if (this.value.trim() === '') {
+            journalCards.forEach(card => {
+                card.style.display = 'block';
+            });
+        }
+    });
+});
+</script>
