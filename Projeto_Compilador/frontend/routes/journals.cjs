@@ -272,17 +272,13 @@ router.post('/toggle-file-visibility/:id', isLoggedIn, async (req, res) => {
 /* GET /journals/export/:id - export a journal */
 router.get('/export/:id', isLoggedIn, async (req, res) => {
     const journalId = req.params.id;
-    console.log('Exporting journal with ID:', journalId);
     axios.get(`http://localhost:3001/journals/${journalId}`)
     .then(response => {
         const journal = response.data;
         if (response.status !== 200) {
             throw new Error('Failed to fetch journal for export');
         }
-        // Create a ZIP file
         const zip = new jszip();
-        //zip.file('journal.json', JSON.stringify(journal, null, 2));
-        
         // Add files to the ZIP
         axios.get(`http://localhost:3001/files/journal/${journalId}`)
             .then(filesResponse => {
@@ -297,21 +293,24 @@ router.get('/export/:id', isLoggedIn, async (req, res) => {
                     }
                 });
                 // Add content.md file
-                const contentMd = `# ${journal.title}\n\n${journal.content}`;
-                zip.file('content.md', contentMd);
+                zip.file('content.md', journal.content);
                 // Add metadata.xml file
                 const metadata = {
                     journalId: journal._id,
                     title: journal.title,
                     files: files.map(f => ({
                         id: f._id,
+                        originalname: f.originalname,
                         name: f.originalname,
-                        type: f.mimetype,
+                        mimetype: f.mimetype,
                         size: f.size,
+                        journal: f.journal,
+                        isPublic: f.isPublic,
                         date: f.date
                     })),
                     views: journal.views || 0,
                     downloads: journal.downloads || 0,
+                    author: journal.author,
                     authorName: journal.authorName,
                     createdAt: journal.createdAt,
                     updatedAt: journal.updatedAt
@@ -344,6 +343,101 @@ router.get('/export/:id', isLoggedIn, async (req, res) => {
                 res.status(500).send('Error fetching journal files for export');
             });
     })
+});
+
+/* POST /journals/import - import a journal zip */
+router.post('/import', isLoggedIn, upload.single('zipFile'), async (req, res) => {
+    const user = req.user;
+    const file = req.file;
+    if (!file) {
+        req.flash('error', 'No file uploaded.');
+        return res.redirect('/journals');
+    }
+
+    const zip = new jszip();
+
+    try {
+        const data = fs.readFileSync(file.path);
+        const zipContent = await zip.loadAsync(data);
+
+        // Extract content.md
+        const contentMd = await zipContent.file('content.md').async('string');
+
+        // Extract and parse manifesto-SIP.xml
+        const xmlString = await zipContent.file('manifesto-SIP.xml').async('string');
+        const parser = new xml2js.Parser();
+        const metadata = await parser.parseStringPromise(xmlString);
+
+        // Prepare journal data
+        const journalData = {
+            title: metadata.journal.title[0],
+            content: contentMd,
+            author: user._id,
+            authorName: user.username,
+            createdAt: new Date(metadata.journal.createdAt[0]),
+            updatedAt: new Date(metadata.journal.updatedAt[0]),
+            views: parseInt(metadata.journal.views[0]) || 0,
+            downloads: parseInt(metadata.journal.downloads[0]) || 0,
+            files: []
+        };
+
+        // 1. Create the journal (without files first)
+        const journalResponse = await axios.post('http://localhost:3001/journals/create', journalData);
+        if (journalResponse.status !== 200) {
+            throw new Error('Failed to create journal from import');
+        }
+
+        const createdJournal = journalResponse.data;
+
+        // 2. Process and save files (now with journal ID)
+        const filePromises = Object.keys(zipContent.files).map(async fileName => {
+            if (fileName === 'content.md' || fileName === 'manifesto-SIP.xml') return;
+
+            const fileData = await zipContent.file(fileName).async('nodebuffer');
+            const uploadDir = `public/uploads/${user._id}`;
+            const filePath = `${uploadDir}/${fileName}`;
+
+            // Ensure user directory exists
+            fs.mkdirSync(uploadDir, { recursive: true });
+
+            fs.writeFileSync(filePath, fileData);
+
+            // Save file metadata via backend API
+            const fileResponse = await axios.post('http://localhost:3001/files/create', {
+                name: fileName,
+                originalname: fileName,
+                mimetype: 'application/octet-stream',
+                date: new Date(),
+                size: fileData.length,
+                isPublic: false,
+                path: filePath.replace('public/', '/'),
+                journal: createdJournal._id // ✅ valid ID now
+            });
+
+            if (fileResponse.status !== 200) {
+                throw new Error('Failed to save file information');
+            }
+
+            journalData.files.push(fileResponse.data._id);
+        });
+
+        await Promise.all(filePromises);
+
+        // 3. Update the journal with file references (optional)
+        await axios.put(`http://localhost:3001/journals/${createdJournal._id}`, {
+            files: journalData.files
+        });
+
+        // Clean up
+        fs.unlinkSync(file.path);
+        req.flash('success', 'Journal imported successfully!');
+        res.redirect('/journals');
+
+    } catch (err) {
+        console.error('Error processing zip file:', err);
+        req.flash('error', 'Error processing zip file.');
+        res.redirect('/journals');
+    }
 });
 
 module.exports = router;
