@@ -1,0 +1,44 @@
+extends layout
+
+block content
+    .w3-container.w3-teal(style="display: flex; justify-content: space-between; align-items: center")
+        h1= title
+        a.w3-button.w3-white(href='/') Voltar
+    .w3-container
+        h2 Detalhes da Edição
+        table.w3-table-all
+            thead
+                tr
+                    th Id
+                    th Ano
+                    th Organizador
+                    th Vencedor
+            tbody
+                tr
+                    td= edicao._id
+                    td= edicao.anoEdicao
+                    td
+                        a(href=`/paises/${edicao.organizacao}`)= edicao.organizacao
+                    td
+                        a(href=`/paises/${edicao.vencedor}`)= edicao.vencedor
+
+        h2 Músicas Participantes
+        table.w3-table-all
+            thead
+                tr
+                    th Id
+                    th Título
+                    th País
+                    th Compositor
+                    th Intérprete
+                    th Link
+            tbody
+                each musica in edicao.musicas
+                    tr
+                        td= musica.id
+                        td= musica.titulo
+                        td= musica.pais
+                        td= musica.compositor
+                        td= musica.interprete
+                        td
+                            a(href=musica.link target="_blank") Ver

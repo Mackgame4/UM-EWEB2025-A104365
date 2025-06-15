@@ -1,0 +1,39 @@
+extends layout
+
+block content
+    .w3-container.w3-teal(style="display: flex; justify-content: space-between; align-items: center")
+        h1= title
+        a.w3-button.w3-white(href='/') Voltar
+
+    .w3-container
+        h2 Edições em que participou
+        table.w3-table-all
+            thead
+                tr
+                    th ID da Edição
+                    th Ano
+                    th Música
+                    th Intérprete
+                    th Venceu?
+            tbody
+                each ed in participacoes
+                    tr
+                        td
+                            a(href=`/${ed.id}`)= ed.id
+                        td= ed.anoEdicao
+                        td= ed.musica
+                        td= ed.interprete
+                        td= ed.venceu ? "Sim" : "Não"
+
+        h2 Edições organizadas
+        table.w3-table-all
+            thead
+                tr
+                    th ID da Edição
+                    th Ano
+            tbody
+                each ed in organizacoes
+                    tr
+                        td
+                            a(href=`/${ed.id}`)= ed.id
+                        td= ed.anoEdicao

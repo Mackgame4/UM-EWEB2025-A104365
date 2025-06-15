@@ -1,0 +1,14 @@
+extends layout
+
+block content
+  .w3-container.w3-padding-64
+    .w3-content(style="max-width: 800px")
+      .w3-panel.w3-border.w3-round-large.w3-pale-red.w3-left-align
+        h1.w3-text-red #{message}
+        if error && error.status
+          h3.w3-text-dark-grey Status: #{error.status}
+        if error && error.stack
+          .w3-code.w3-light-grey(style="overflow-x: auto; white-space: pre-wrap; word-wrap: break-word; max-height: 300px")
+            | #{error.stack}
+        .w3-center
+          a.w3-button.w3-teal.w3-margin-top.w3-margin-bottom(href="/") ⬅ Back to Home
